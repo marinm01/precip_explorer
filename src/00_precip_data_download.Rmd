@@ -1,0 +1,97 @@
+---
+title: "Downloading Precip Data in Colorado"
+author: "Matt Ross"
+date: '2022-03-23'
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r download-packages, include=FALSE}
+
+library(riem)
+library(sf)
+library(mapview)
+library(tidyverse)
+#library(rayshader)
+library(USAboundaries)
+library(raster)
+library(elevatr)
+library(tmap)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Download and data check
+
+```{r}
+network <- riem_networks()
+
+co_stations <- riem_stations(network = 'CO_ASOS') %>%
+  st_as_sf(., coords = c('lon','lat'), crs = 4326)
+
+glimpse(co_stations)
+```
+
+
+## Interactive map
+
+```{r}
+
+mapview(co_stations)
+
+```
+
+
+## Static map
+
+
+### Download some state boundary data
+
+
+```{r}
+
+co <- us_counties(
+                  states = 'Colorado')
+
+
+#co_elev <- elevatr::get_elev_raster(co_stations,
+#                                   z = 9)
+
+
+```
+
+
+```{r}
+
+tm_shape(co) + 
+  tm_polygons(col = 'white') + 
+tm_shape(co_stations) + 
+  tm_bubbles(size = 0.2) 
+
+```
+
+
+
+## Download a single site data
+
+
+```{r}
+fnl <- riem_measures(station = 'FNL',
+                   date_start = '1987-05-01',
+                   date_end = '1992-11-01')
+
+
+daily <- fnl %>%
+  mutate(date = as.Date(valid)) %>%
+  group_by(date) %>%
+  summarize(daily_rain = mean(tmpf,na.rm=T))
+
+ggplot(daily, aes(x=date, y = daily_rain)) + 
+  geom_point() + 
+  scale_y_log10()
+
+
+```
+
