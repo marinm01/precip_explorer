@@ -1,7 +1,7 @@
 ---
 title: "Downloading Precip Data in Colorado"
-author: "Matt Ross"
-date: '2022-03-23'
+author: "Marin MacDonald"
+date: '`r Sys.Date()`'
 output: html_document
 editor_options: 
   chunk_output_type: console
@@ -20,6 +20,7 @@ library(elevatr)
 library(tmap)
 
 knitr::opts_chunk$set(echo = TRUE)
+mapviewOptions(fgb = FALSE)
 ```
 
 
@@ -57,7 +58,7 @@ co <- us_counties(
 
 
 #co_elev <- elevatr::get_elev_raster(co_stations,
-#                                   z = 9)
+                               #   z = 9)
 
 
 ```
@@ -90,8 +91,21 @@ daily <- fnl %>%
 
 ggplot(daily, aes(x=date, y = daily_rain)) + 
   geom_point() + 
-  scale_y_log10()
+  scale_y_log10()+
+  labs(x = "Date", y = "Daily Rainfall", title= "Daily Rainfall for FNL Airport")
 
 
 ```
 
+#Download the rest of the data for the CO sites
+```{r}
+for (i in co_stations) {
+  
+}
+stats <- riem_measures(station = co_stations,
+                   date_start = '1987-05-01',
+                   date_end = '1992-11-01')
+
+
+
+```
